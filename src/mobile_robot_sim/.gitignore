@@ -1,0 +1,13 @@
+# ROS2编译生成目录
+build/
+install/
+log/
+
+# Python缓存文件
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# VS Code本地配置
+.vscode/
