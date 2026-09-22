@@ -26,6 +26,7 @@ setup(
     "console_scripts": [
         "velocity_publisher = mobile_robot_sim.velocity_publisher:main",
         "velocity_subscriber = mobile_robot_sim.velocity_subscriber:main",
+        "mobile_robot_simulator = mobile_robot_sim.mobile_robot_simulator:main",
     ],
 },
 )
