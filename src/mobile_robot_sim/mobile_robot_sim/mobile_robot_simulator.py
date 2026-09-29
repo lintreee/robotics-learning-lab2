@@ -4,6 +4,7 @@ from rclpy.node import Node
 import math
 from nav_msgs.msg import Odometry
 import time
+from std_srvs.srv import SetBool
 
 from mobile_robot_sim.kinematics import update_pose
 
@@ -11,6 +12,15 @@ from mobile_robot_sim.kinematics import update_pose
 class MobileRobotSimulator(Node):
     def __init__(self):
         super().__init__("mobile_robot_simulator")
+
+
+        self.motion_enabled = True
+
+        self.motion_service = self.create_service(
+            SetBool,
+            "/set_motion_enabled",
+            self.set_motion_enabled_callback,
+        )
 
         # 机器人当前位姿
         self.x = 0.0
@@ -59,7 +69,27 @@ class MobileRobotSimulator(Node):
             "Waiting for velocity commands on /cmd_vel."
         )
 
+    def set_motion_enabled_callback(self, request, response):
+        self.motion_enabled = request.data
+
+        if self.motion_enabled:
+            response.message = "运动已恢复，等待新的速度命令"
+            self.get_logger().info(response.message)
+        else:
+            self.linear_velocity = 0.0
+            self.angular_velocity = 0.0
+            self.last_command_time = None
+            response.message = "运动已停止，后续速度命令暂不执行"
+            self.get_logger().info(response.message)
+
+        response.success = True
+        return response
+
+
     def velocity_callback(self, message):
+        if not self.motion_enabled:
+            return
+            
         """收到速度消息时，保存最新的速度命令。"""
         self.linear_velocity = message.linear.x
         self.angular_velocity = message.angular.z
